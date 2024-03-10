@@ -15,12 +15,11 @@ use crate::{
 };
 use wmi_manager::WMI;
 
+const CLIENT_PROCESS_NAME: &str = "LeagueClientUX.exe";
+
 fn main() {
     let wmi: WMI = WMI::new();
-    let arguments = wmi.get_arguments_for_process_with_name("LeagueClientUX.exe");
-
-    // TODO: handle no client case and wait for client to appear.
-    let arguments = arguments.expect("No such process found!");
+    let arguments = wmi.get_arguments_for_process_with_name(CLIENT_PROCESS_NAME);
     println!("{arguments}");
 
     let arguments_list = arguments.split_as_arguments();
