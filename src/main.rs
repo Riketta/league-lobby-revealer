@@ -19,7 +19,19 @@ const CLIENT_PROCESS_NAME: &str = "LeagueClientUX.exe";
 
 fn main() {
     let wmi: WMI = WMI::new();
-    let arguments = wmi.get_arguments_for_process_with_name(CLIENT_PROCESS_NAME);
+    let mut arguments: Option<String>;
+
+    loop {
+        arguments = wmi.get_arguments_for_process_with_name(CLIENT_PROCESS_NAME);
+        if arguments.is_some() {
+            break;
+        }
+
+        print!("\x1B[2J\x1B[1;1H");
+        println!("No process found!");
+        std::thread::sleep(Duration::from_millis(3000));
+    }
+    let arguments: String = arguments.unwrap();
     println!("{arguments}");
 
     let arguments_list = arguments.split_as_arguments();
