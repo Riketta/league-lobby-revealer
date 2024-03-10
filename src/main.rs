@@ -10,8 +10,13 @@ use std::{cmp, time::Duration};
 
 use crate::{
     player_stats_provider::PlayerStatsProvider,
-    player_stats_providers::stat_provider_deeplolgg::StatProviderDeeplolGG, riot_api::RiotAPI,
-    riot_api_credentials::RiotAPICredentials, string_extension::StringExt,
+    player_stats_providers::{
+        stat_provider_deeplolgg::StatProviderDeeplolGG, stat_provider_opgg::StatProviderOPGG,
+        stat_provider_porogg::StatProviderPoroGG, stat_provider_ugg::StatProviderUGG,
+    },
+    riot_api::RiotAPI,
+    riot_api_credentials::RiotAPICredentials,
+    string_extension::StringExt,
 };
 use wmi_manager::WMI;
 
@@ -91,7 +96,12 @@ fn main() {
     let me = format!("{}#{}", chat_session.game_name, chat_session.game_tag);
     let region: String = region_locale.region;
 
-    let stats_provider: Box<dyn PlayerStatsProvider> = Box::new(StatProviderDeeplolGG);
+    let mut stats_providers: Vec<Box<dyn PlayerStatsProvider>> = Vec::new();
+    stats_providers.push(Box::new(StatProviderDeeplolGG));
+    stats_providers.push(Box::new(StatProviderUGG));
+    stats_providers.push(Box::new(StatProviderOPGG));
+    stats_providers.push(Box::new(StatProviderPoroGG));
+
     let mut premade_players: Vec<String> = Vec::new();
     let mut random_players: Vec<String> = Vec::new();
     loop {
@@ -137,11 +147,16 @@ fn main() {
         }
 
         println!("# Stats");
-
-        println!(
-            "{}",
-            stats_provider.get_player_stats(&region, &random_players)
-        );
+        if !random_players.is_empty() {
+            for stats_provider in &stats_providers {
+                println!(
+                    "{}",
+                    stats_provider.get_player_stats(&region, &random_players)
+                );
+            }
+        } else {
+            println!("Waiting for random players to appear.");
+        }
 
         std::thread::sleep(Duration::from_millis(3000));
     }
