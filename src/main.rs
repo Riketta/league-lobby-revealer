@@ -107,7 +107,8 @@ fn main() {
     loop {
         let chat_participants = api.request_chat_v5_participants();
         let champ_select_v1_session = api.request_lol_champ_select_v1_session();
-        let champ_select_session_error_message = champ_select_v1_session.message.unwrap_or_default();
+        let champ_select_session_error_message =
+            champ_select_v1_session.message.unwrap_or_default();
 
         // Remember group members if you not if champ select.
         if &champ_select_session_error_message == "No active delegate" {
@@ -137,7 +138,8 @@ fn main() {
             }
         }
 
-        print!("\x1B[2J\x1B[1;1H"); // Clear console and put cursor to 1, 1 position.
+        // Clear console and put cursor to 1, 1 position.
+        print!("\x1B[2J\x1B[1;1H");
         // println!("{}: {}", champ_select_session_error_message, champ_select_session_error_message == "No active delegate");
         println!("# Premade");
         for player in &premade_players {
