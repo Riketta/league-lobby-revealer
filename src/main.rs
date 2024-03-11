@@ -102,6 +102,19 @@ fn main() {
     stats_providers.push(Box::new(StatProviderOPGG));
     stats_providers.push(Box::new(StatProviderPoroGG));
 
+    // Debug stats providers
+    let mut debug_players: Vec<String> = Vec::new();
+    debug_players.push(" αurl#EUW".to_string());
+    debug_players.push("Copper Revenant#BONK".to_string());
+    debug_players.push("FigoHSV#HSV".to_string());
+    debug_players.push("never int hehexd#EUW".to_string());
+    for stats_provider in &stats_providers {
+        println!(
+            "{}",
+            stats_provider.get_player_stats(&region, &debug_players)
+        );
+    }
+
     let mut premade_players: Vec<String> = Vec::new();
     let mut random_players: Vec<String> = Vec::new();
     loop {
