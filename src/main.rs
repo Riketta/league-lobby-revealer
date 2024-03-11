@@ -33,7 +33,7 @@ fn main() {
             break;
         }
 
-        print!("\x1B[2J\x1B[1;1H");
+        clear();
         println!("No process found!");
         std::thread::sleep(Duration::from_millis(3000));
     }
@@ -155,8 +155,7 @@ fn main() {
             }
         }
 
-        // Clear console and put cursor to 1, 1 position.
-        print!("\x1B[2J\x1B[1;1H");
+        clear();
         // println!("{}: {}", champ_select_session_error_message, champ_select_session_error_message == "No active delegate");
         println!("# Premade");
         for player in &premade_players {
@@ -182,4 +181,9 @@ fn main() {
 
         std::thread::sleep(Duration::from_millis(3000));
     }
+}
+
+/// Clear console and put cursor to 1, 1 position.
+fn clear() {
+    print!("\x1B[2J\x1B[1;1H");
 }
