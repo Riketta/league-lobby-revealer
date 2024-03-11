@@ -1,4 +1,4 @@
-# League of Legends Lobby Levealer
+# League of Legends Lobby Revealer
 
 ## Sample output
 ```
