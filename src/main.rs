@@ -102,7 +102,7 @@ fn main() {
     stats_providers.push(Box::new(StatProviderOPGG));
     stats_providers.push(Box::new(StatProviderPoroGG));
 
-    // Debug stats providers
+    // Debug stats providers.
     // let mut debug_players: Vec<String> = Vec::new();
     // debug_players.push(" αurl#EUW".to_string());
     // debug_players.push("Copper Revenant#BONK".to_string());
