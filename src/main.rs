@@ -12,6 +12,7 @@ use crate::{
     player_stats_provider::PlayerStatsProvider,
     player_stats_providers::{
         stat_provider_deeplolgg::StatProviderDeeplolGG, stat_provider_opgg::StatProviderOPGG,
+        stat_provider_porofessorgg::StatProviderPorofessorGG,
         stat_provider_porogg::StatProviderPoroGG, stat_provider_ugg::StatProviderUGG,
     },
     riot_api::RiotAPI,
@@ -97,6 +98,7 @@ fn main() {
     let region: String = region_locale.region;
 
     let mut stats_providers: Vec<Box<dyn PlayerStatsProvider>> = Vec::new();
+    stats_providers.push(Box::new(StatProviderPorofessorGG));
     stats_providers.push(Box::new(StatProviderDeeplolGG));
     stats_providers.push(Box::new(StatProviderUGG));
     stats_providers.push(Box::new(StatProviderOPGG));
