@@ -183,13 +183,8 @@ fn main() {
     }
 }
 
-/// Clear console and put cursor to 1, 1 position.
+/// Clear console.
 fn clear() {
-    std::process::Command::new("cmd")
-        .args(["/c", "cls"])
-        .spawn()
-        .unwrap_or_else(|_| {
-            print!("\x1B[2J\x1B[1;1H");
-            ExitStatus::default()
-        });
+    let term = console::Term::stdout();
+    term.clear_screen().expect("Failed to clear console!");
 }
