@@ -9,7 +9,7 @@ impl PlayerStatsProvider for StatProviderPorofessorGG {
         url.push_str(
             PlayerStatsProvider::prepare_player_list(self, player_names_with_tags, true).as_str(),
         );
-        url.push_str("/soloqueue");
+        url.push_str("/soloqueue/season");
 
         url
     }
