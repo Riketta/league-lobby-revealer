@@ -127,6 +127,8 @@ fn main() {
         if &champ_select_session_error_message == "No active delegate" {
             // println!("Not in Champ Select!");
 
+            // TODO: wipe random_players while not in champ select (after match ended)?
+
             premade_players = Vec::with_capacity(cmp::max(chat_participants.participants.len(), 1));
             // DEBUG: Comment this so you will be counted as random for testing purposes (in practice tool lobby, for example).
             premade_players.push(me.clone());
