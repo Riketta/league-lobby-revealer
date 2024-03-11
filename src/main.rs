@@ -6,7 +6,7 @@ mod riot_api_structs;
 mod string_extension;
 mod wmi_manager;
 
-use std::{cmp, time::Duration};
+use std::{cmp, process::ExitStatus, time::Duration};
 
 use crate::{
     player_stats_provider::PlayerStatsProvider,
@@ -185,5 +185,11 @@ fn main() {
 
 /// Clear console and put cursor to 1, 1 position.
 fn clear() {
-    print!("\x1B[2J\x1B[1;1H");
+    std::process::Command::new("cmd")
+        .args(["/c", "cls"])
+        .spawn()
+        .unwrap_or_else(|_| {
+            print!("\x1B[2J\x1B[1;1H");
+            ExitStatus::default()
+        });
 }
