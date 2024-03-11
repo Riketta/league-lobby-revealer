@@ -7,12 +7,7 @@ impl PlayerStatsProvider for StatProviderUGG {
         let mut url = String::from("https://u.gg/multisearch?region=");
         url.push_str(format!("{}1&summoners=", &region.to_lowercase()).as_str());
         url.push_str(
-            player_names_with_tags
-                .iter()
-                .map(|player| player.replace("#", "-"))
-                .collect::<Vec<String>>()
-                .join(",")
-                .as_str(),
+            PlayerStatsProvider::prepare_player_list(self, player_names_with_tags, true).as_str(),
         );
 
         url
