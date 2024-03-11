@@ -118,19 +118,18 @@ fn main() {
     // }
 
     let mut premade_players: Vec<String> = Vec::new();
-    let mut random_players: Vec<String> = Vec::new();
+    let mut random_players: Vec<String>;
     loop {
         let chat_participants = api.request_chat_v5_participants();
         let champ_select_v1_session = api.request_lol_champ_select_v1_session();
         let champ_select_session_error_message =
             champ_select_v1_session.message.unwrap_or_default();
 
-        // Remember group members if you not if champ select.
+        // Remember group members and wipe old data about randoms if you not if champ select.
         if &champ_select_session_error_message == "No active delegate" {
             // println!("Not in Champ Select!");
 
-            // TODO: wipe random_players while not in champ select (after match ended)?
-
+            random_players = Vec::new();
             premade_players = Vec::with_capacity(cmp::max(chat_participants.participants.len(), 1));
             // DEBUG: Comment this so you will be counted as random for testing purposes (in practice tool lobby, for example).
             premade_players.push(me.clone());
