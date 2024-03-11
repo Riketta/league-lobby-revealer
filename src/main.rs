@@ -106,9 +106,11 @@ fn main() {
     let mut random_players: Vec<String> = Vec::new();
     loop {
         let chat_participants = api.request_chat_v5_participants();
-        let champ_select_session = api.request_lol_champ_select_legacy_v1_session();
+        let champ_select_v1_session = api.request_lol_champ_select_v1_session();
+        let champ_select_session_error_message = champ_select_v1_session.message.unwrap_or_default();
 
-        if champ_select_session.message.unwrap_or_default() == "Not in Champ Select" {
+        // Remember group members if you not if champ select.
+        if &champ_select_session_error_message == "No active delegate" {
             // println!("Not in Champ Select!");
 
             premade_players = Vec::with_capacity(cmp::max(chat_participants.participants.len(), 1));
@@ -136,6 +138,7 @@ fn main() {
         }
 
         print!("\x1B[2J\x1B[1;1H");
+        // println!("{}: {}", champ_select_session_error_message, champ_select_session_error_message == "No active delegate");
         println!("# Premade");
         for player in &premade_players {
             println!("- {player}");

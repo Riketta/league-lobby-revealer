@@ -7,6 +7,7 @@ use crate::{
     riot_api_structs::{
         chat_v1_session::ChatV1Session, chat_v5_participants::ChatV5Participants,
         lol_champ_select_legacy_v1_session::LolChampSelectLegacyV1Session,
+        lol_champ_select_v1_session::LolChampSelectV1Session,
         riot_client_region_locale::RiotClientRegionLocale,
     },
 };
@@ -85,6 +86,13 @@ impl RiotAPI {
             "lol-champ-select-legacy/v1/session".to_string(),
         );
         let data: LolChampSelectLegacyV1Session = serde_json::from_str(&json).unwrap();
+        data
+    }
+
+    pub(crate) fn request_lol_champ_select_v1_session(&self) -> LolChampSelectV1Session {
+        let json =
+            self.make_league_client_request(Method::GET, "lol-champ-select/v1/session".to_string());
+        let data: LolChampSelectV1Session = serde_json::from_str(&json).unwrap();
         data
     }
 
