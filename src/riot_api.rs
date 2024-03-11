@@ -50,7 +50,7 @@ impl RiotAPI {
             .header(reqwest::header::USER_AGENT, &self.user_agent)
             .header(reqwest::header::CONTENT_TYPE, "application/json")
             .send()
-            .unwrap();
+            .unwrap(); // TODO: handle "tcp connect error" during League client start-up.
 
         let mut content = String::new();
         result.read_to_string(&mut content).unwrap();
