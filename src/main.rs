@@ -137,7 +137,7 @@ fn main() {
             }
         }
 
-        print!("\x1B[2J\x1B[1;1H");
+        print!("\x1B[2J\x1B[1;1H"); // Clear console and put cursor to 1, 1 position.
         // println!("{}: {}", champ_select_session_error_message, champ_select_session_error_message == "No active delegate");
         println!("# Premade");
         for player in &premade_players {
