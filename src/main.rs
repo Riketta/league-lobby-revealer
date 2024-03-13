@@ -6,7 +6,7 @@ mod riot_api_structs;
 mod string_extension;
 mod wmi_manager;
 
-use std::{cmp, env::args, process::ExitStatus, time::Duration};
+use std::{cmp, env::args, time::Duration};
 
 use crate::{
     player_stats_provider::PlayerStatsProvider,
