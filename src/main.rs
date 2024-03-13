@@ -6,7 +6,7 @@ mod riot_api_structs;
 mod string_extension;
 mod wmi_manager;
 
-use std::{cmp, process::ExitStatus, time::Duration};
+use std::{cmp, env::args, process::ExitStatus, time::Duration};
 
 use crate::{
     player_stats_provider::PlayerStatsProvider,
@@ -24,6 +24,16 @@ use wmi_manager::WMI;
 const CLIENT_PROCESS_NAME: &str = "LeagueClientUX.exe";
 
 fn main() {
+    let mut include_premade = false;
+
+    let args = args();
+    for arg in args {
+        // Should premade be included to stats?
+        if arg.to_lowercase() == "--include-premade".to_lowercase() {
+            include_premade = true;
+        }
+    }
+
     let wmi: WMI = WMI::new();
     let mut arguments: Option<String>;
 
@@ -146,7 +156,7 @@ fn main() {
             random_players = Vec::with_capacity(chat_participants.participants.len());
             for player in chat_participants.participants {
                 let full_player_name = format!("{}#{}", player.game_name, player.game_tag);
-                if !premade_players.contains(&full_player_name)
+                if (!premade_players.contains(&full_player_name) || include_premade)
                     && !random_players.contains(&full_player_name)
                 {
                     random_players.push(full_player_name);
