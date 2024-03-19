@@ -3,7 +3,7 @@ use serde::Deserialize;
 #[derive(Deserialize, Debug, Default)]
 pub(crate) struct Participant {
     #[serde(rename = "activePlatform")]
-    pub active_platform: String,
+    pub active_platform: Option<String>,
     pub cid: String,
     pub game_name: String,
     pub game_tag: String,
