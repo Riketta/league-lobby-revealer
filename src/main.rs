@@ -168,7 +168,7 @@ fn main() {
         // println!("{}: {}", champ_select_session_error_message, champ_select_session_error_message == "No active delegate");
 
         if (include_premade && random_players.len() > 5)
-            || (random_players.len() + premade_players.len() > 5)
+            || (!include_premade && random_players.len() + premade_players.len() > 5)
         {
             println!("[!] Warning: more than 5 players in lobby detected: close active chat tabs!");
         }
