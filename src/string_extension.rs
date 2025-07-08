@@ -39,15 +39,15 @@ impl StringExt for String {
             }
 
             if let Some(ref mut arg) = current_argument {
-                arg.push(char)
+                arg.push(char);
             }
 
             if is_escaped {
                 is_escaped = false;
             }
         }
-        if current_argument.is_some() {
-            arguments.push(current_argument.unwrap());
+        if let Some(current_argument) = current_argument {
+            arguments.push(current_argument);
         }
 
         arguments

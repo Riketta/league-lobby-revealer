@@ -1,12 +1,22 @@
 use windows::{
-    core::*,
-    Win32::System::{Com::*, Wmi::*},
+    Win32::System::{
+        Com::{
+            CLSCTX_INPROC_SERVER, COINIT_MULTITHREADED, CoCreateInstance, CoInitializeEx,
+            CoInitializeSecurity, EOAC_NONE, RPC_C_AUTHN_LEVEL_DEFAULT,
+            RPC_C_IMP_LEVEL_IMPERSONATE,
+        },
+        Wmi::{
+            IWbemLocator, IWbemServices, WBEM_FLAG_FORWARD_ONLY, WBEM_FLAG_RETURN_IMMEDIATELY,
+            WBEM_INFINITE, WbemLocator,
+        },
+    },
+    core::{BSTR, VARIANT, w},
 };
-pub(crate) struct WMI {
+pub(crate) struct Wmi {
     server: IWbemServices,
 }
 
-impl WMI {
+impl Wmi {
     pub(crate) fn new() -> Self {
         unsafe {
             CoInitializeEx(None, COINIT_MULTITHREADED).ok().unwrap();

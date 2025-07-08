@@ -1,6 +1,6 @@
 use std::io::Read;
 
-use reqwest::{blocking::Client, Method};
+use reqwest::{Method, blocking::Client};
 
 use crate::{
     riot_api_credentials::RiotAPICredentials,
@@ -35,7 +35,7 @@ impl RiotAPI {
     fn make_request(
         &self,
         method: Method,
-        endpoint: String,
+        endpoint: &str,
         credentials: &RiotAPICredentials,
     ) -> String {
         let request_url = format!("https://127.0.0.1:{}/{}", credentials.port, endpoint);
@@ -58,22 +58,22 @@ impl RiotAPI {
         content
     }
 
-    fn make_riot_client_request(&self, method: Method, endpoint: String) -> String {
+    fn make_riot_client_request(&self, method: Method, endpoint: &str) -> String {
         self.make_request(method, endpoint, &self.riot_client_credentials)
     }
 
-    fn make_league_client_request(&self, method: Method, endpoint: String) -> String {
+    fn make_league_client_request(&self, method: Method, endpoint: &str) -> String {
         self.make_request(method, endpoint, &self.league_client_credentials)
     }
 
     pub(crate) fn request_chat_v1_session(&self) -> ChatV1Session {
-        let json = self.make_riot_client_request(Method::GET, "chat/v1/session".to_string());
+        let json = self.make_riot_client_request(Method::GET, "chat/v1/session");
         let data: ChatV1Session = serde_json::from_str(&json).unwrap();
         data
     }
 
     pub(crate) fn request_chat_v5_participants(&self) -> ChatV5Participants {
-        let json = self.make_riot_client_request(Method::GET, "chat/v5/participants".to_string());
+        let json = self.make_riot_client_request(Method::GET, "chat/v5/participants");
         let data: ChatV5Participants = serde_json::from_str(&json).unwrap();
         data
     }
@@ -81,24 +81,20 @@ impl RiotAPI {
     pub(crate) fn request_lol_champ_select_legacy_v1_session(
         &self,
     ) -> LolChampSelectLegacyV1Session {
-        let json = self.make_league_client_request(
-            Method::GET,
-            "lol-champ-select-legacy/v1/session".to_string(),
-        );
+        let json =
+            self.make_league_client_request(Method::GET, "lol-champ-select-legacy/v1/session");
         let data: LolChampSelectLegacyV1Session = serde_json::from_str(&json).unwrap();
         data
     }
 
     pub(crate) fn request_lol_champ_select_v1_session(&self) -> LolChampSelectV1Session {
-        let json =
-            self.make_league_client_request(Method::GET, "lol-champ-select/v1/session".to_string());
+        let json = self.make_league_client_request(Method::GET, "lol-champ-select/v1/session");
         let data: LolChampSelectV1Session = serde_json::from_str(&json).unwrap();
         data
     }
 
     pub(crate) fn request_riot_client_region_locale(&self) -> RiotClientRegionLocale {
-        let json =
-            self.make_riot_client_request(Method::GET, "riotclient/region-locale".to_string());
+        let json = self.make_riot_client_request(Method::GET, "riotclient/region-locale");
         let data: RiotClientRegionLocale = serde_json::from_str(&json).unwrap();
         data
     }

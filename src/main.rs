@@ -4,6 +4,7 @@ mod riot_api;
 mod riot_api_credentials;
 mod riot_api_structs;
 mod string_extension;
+mod url_encoder;
 mod wmi_manager;
 
 use std::{cmp, env::args, time::Duration};
@@ -19,22 +20,23 @@ use crate::{
     riot_api_credentials::RiotAPICredentials,
     string_extension::StringExt,
 };
-use wmi_manager::WMI;
+use wmi_manager::Wmi;
 
-const CLIENT_PROCESS_NAME: &str = "LeagueClientUX.exe";
+static CLIENT_PROCESS_NAME: &str = "LeagueClientUX.exe";
 
+#[allow(clippy::too_many_lines)]
 fn main() {
-    let mut include_premade = false;
+    let mut include_premade = true;
 
     let args = args();
     for arg in args {
         // Should premade be included to stats?
-        if arg.to_lowercase() == "--include-premade".to_lowercase() {
-            include_premade = true;
+        if arg.to_lowercase() == "--exclude-premade".to_lowercase() {
+            include_premade = false;
         }
     }
 
-    let wmi: WMI = WMI::new();
+    let wmi: Wmi = Wmi::new();
     let mut arguments: Option<String>;
 
     loop {
@@ -57,7 +59,7 @@ fn main() {
     riot_client_api_credentials.user = "riot".into();
     league_client_api_credentials.user = "riot".into();
 
-    for i in 0..arguments_list.len() {
+    for (i, _) in arguments_list.iter().enumerate() {
         let argument = &arguments_list[i];
 
         let temp = argument
@@ -93,11 +95,19 @@ fn main() {
                 if value.is_some() {
                     " ".to_owned() + value.unwrap_or("-")
                 } else {
-                    "".to_owned()
+                    String::new()
                 }
             );
         }
     }
+
+    let stats_providers: Vec<Box<dyn PlayerStatsProvider>> = vec![
+        Box::new(StatProviderPorofessorGG),
+        Box::new(StatProviderDeeplolGG),
+        Box::new(StatProviderUGG),
+        Box::new(StatProviderOPGG),
+        Box::new(StatProviderPoroGG),
+    ];
 
     let api: RiotAPI = RiotAPI::new(riot_client_api_credentials, league_client_api_credentials);
 
@@ -106,26 +116,6 @@ fn main() {
 
     let me = format!("{}#{}", chat_session.game_name, chat_session.game_tag);
     let region: String = region_locale.region;
-
-    let mut stats_providers: Vec<Box<dyn PlayerStatsProvider>> = Vec::new();
-    stats_providers.push(Box::new(StatProviderPorofessorGG));
-    stats_providers.push(Box::new(StatProviderDeeplolGG));
-    stats_providers.push(Box::new(StatProviderUGG));
-    stats_providers.push(Box::new(StatProviderOPGG));
-    stats_providers.push(Box::new(StatProviderPoroGG));
-
-    // Debug stats providers.
-    // let mut debug_players: Vec<String> = Vec::new();
-    // debug_players.push(" αurl#EUW".to_string());
-    // debug_players.push("Copper Revenant#BONK".to_string());
-    // debug_players.push("FigoHSV#HSV".to_string());
-    // debug_players.push("never int hehexd#EUW".to_string());
-    // for stats_provider in &stats_providers {
-    //     println!(
-    //         "{}",
-    //         stats_provider.get_player_stats(&region, &debug_players)
-    //     );
-    // }
 
     let mut premade_players: Vec<String> = Vec::new();
     let mut random_players: Vec<String>;
@@ -177,22 +167,24 @@ fn main() {
         for player in &premade_players {
             println!("- {player}");
         }
+        println!();
 
         println!("# Randoms");
         for player in &random_players {
             println!("- {player}");
         }
+        println!();
 
         println!("# Stats");
-        if !random_players.is_empty() {
+        if random_players.is_empty() {
+            println!("Waiting for random players to appear.");
+        } else {
             for stats_provider in &stats_providers {
                 println!(
                     "{}",
                     stats_provider.get_player_stats(&region, &random_players)
                 );
             }
-        } else {
-            println!("Waiting for random players to appear.");
         }
 
         std::thread::sleep(Duration::from_millis(3000));
@@ -203,4 +195,32 @@ fn main() {
 fn clear() {
     let term = console::Term::stdout();
     term.clear_screen().expect("Failed to clear console!");
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::{
+        player_stats_provider::PlayerStatsProvider,
+        player_stats_providers::stat_provider_porofessorgg::StatProviderPorofessorGG,
+    };
+
+    #[test]
+    fn test_stat_url() {
+        let region: String = "EUW".to_string();
+        let stats_provider = StatProviderPorofessorGG;
+
+        let players: Vec<String> = vec![
+            "αurl#EUW".to_string(),
+            "Shëun#2530".to_string(),
+            "FigoHSV#HSV".to_string(),
+            "never int hehexd#EUW".to_string(),
+            "소년 구세주#cigan".to_string(),
+        ];
+
+        let url = stats_provider.get_player_stats(&region, &players);
+        assert_eq!(
+            &url,
+            "https://porofessor.gg/pregame/euw/%CE%B1url%23EUW%2CSh%C3%ABun%232530%2CFigoHSV%23HSV%2Cnever+int+hehexd%23EUW%2C%EC%86%8C%EB%85%84+%EA%B5%AC%EC%84%B8%EC%A3%BC%23cigan/soloqueue/season"
+        );
+    }
 }
