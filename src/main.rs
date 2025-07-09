@@ -7,7 +7,7 @@ mod string_extension;
 mod url_encoder;
 mod wmi_manager;
 
-use std::{cmp, env::args, time::Duration};
+use std::{env::args, time::Duration};
 
 use crate::{
     player_stats_provider::PlayerStatsProvider,
@@ -23,16 +23,16 @@ use crate::{
 use wmi_manager::Wmi;
 
 static CLIENT_PROCESS_NAME: &str = "LeagueClientUX.exe";
+static SLEEP_DURATION: Duration = Duration::from_millis(3000);
 
 #[allow(clippy::too_many_lines)]
 fn main() {
-    let mut include_premade = true;
+    let mut debug = false;
 
     let args = args();
     for arg in args {
-        // Should premade be included to stats?
-        if arg.to_lowercase() == "--exclude-premade".to_lowercase() {
-            include_premade = false;
+        if arg.to_lowercase() == "--debug" {
+            debug = true;
         }
     }
 
@@ -110,84 +110,79 @@ fn main() {
     ];
 
     let api: RiotAPI = RiotAPI::new(riot_client_api_credentials, league_client_api_credentials);
-
     let region_locale = api.request_riot_client_region_locale();
-    let chat_session = api.request_chat_v1_session();
-
-    let me = format!("{}#{}", chat_session.game_name, chat_session.game_tag);
     let region: String = region_locale.region;
 
-    let mut premade_players: Vec<String> = Vec::new();
-    let mut random_players: Vec<String>;
+    let mut players: Vec<String> = vec![];
     loop {
         let chat_participants = api.request_chat_v5_participants();
         let champ_select_v1_session = api.request_lol_champ_select_v1_session();
         let champ_select_session_error_message =
             champ_select_v1_session.message.unwrap_or_default();
 
-        // Remember group members and wipe old data about randoms if you not if champ select.
-        if &champ_select_session_error_message == "No active delegate" {
-            // println!("Not in Champ Select!");
-
-            random_players = Vec::new();
-            premade_players = Vec::with_capacity(cmp::max(chat_participants.participants.len(), 1));
-            // DEBUG: Comment this so you will be counted as random for testing purposes (in practice tool lobby, for example).
-            premade_players.push(me.clone());
-
-            for player in chat_participants.participants {
-                let full_player_name = format!("{}#{}", player.game_name, player.game_tag);
-                if !premade_players.contains(&full_player_name) {
-                    premade_players.push(full_player_name);
-                }
-            }
-        } else {
+        if &champ_select_session_error_message != "No active delegate" {
             // println!("In Champ Select!");
 
-            random_players = Vec::with_capacity(chat_participants.participants.len());
+            let mut current_players = vec![];
             for player in chat_participants.participants {
                 let full_player_name = format!("{}#{}", player.game_name, player.game_tag);
-                if (!premade_players.contains(&full_player_name) || include_premade)
-                    && !random_players.contains(&full_player_name)
-                {
-                    random_players.push(full_player_name);
+
+                if !current_players.contains(&full_player_name) {
+                    current_players.push(full_player_name);
                 }
             }
+            // current_players.sort();
+
+            let no_updates = current_players
+                .iter()
+                .zip(&players)
+                .filter(|(a, b)| a == b)
+                .count()
+                == current_players.len();
+
+            if debug {
+                println!("Old: {players:?}");
+                println!("New: {current_players:?}");
+                println!("Updated: {}", !no_updates);
+            }
+
+            if no_updates {
+                std::thread::sleep(SLEEP_DURATION);
+                continue;
+            }
+
+            players = current_players;
         }
 
-        clear();
+        if debug {
+            println!("Skipping clear.");
+        } else {
+            clear();
+        }
         // println!("{}: {}", champ_select_session_error_message, champ_select_session_error_message == "No active delegate");
 
-        if (include_premade && random_players.len() > 5)
-            || (!include_premade && random_players.len() + premade_players.len() > 5)
-        {
-            println!("[!] Warning: more than 5 players in lobby detected: close active chat tabs!");
+        if players.len() > 5 {
+            println!(
+                "[!] Warning: more than 5 players in lobby detected. **CLOSE ACTIVE CHAT TABS**!"
+            );
         }
 
-        println!("# Premade");
-        for player in &premade_players {
+        println!("# Players");
+        for player in &players {
             println!("- {player}");
         }
         println!();
 
-        println!("# Randoms");
-        for player in &random_players {
-            println!("- {player}");
-        }
-        println!();
-
-        println!("# Stats");
-        if random_players.is_empty() {
+        println!("# Reports");
+        if players.is_empty() {
             println!("Waiting for random players to appear.");
         } else {
             for stats_provider in &stats_providers {
-                println!(
-                    "{}",
-                    stats_provider.get_player_stats(&region, &random_players)
-                );
+                println!("{}", stats_provider.get_player_stats(&region, &players));
             }
         }
 
-        std::thread::sleep(Duration::from_millis(3000));
+        std::thread::sleep(SLEEP_DURATION);
     }
 }
 
