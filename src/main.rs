@@ -147,7 +147,7 @@ fn main() {
             }
 
             if no_updates {
-                std::thread::sleep(SLEEP_DURATION);
+                sleep();
                 continue;
             }
 
@@ -163,7 +163,7 @@ fn main() {
 
         if players.len() > 5 {
             println!(
-                "[!] Warning: more than 5 players in lobby detected. **CLOSE ACTIVE CHAT TABS**!"
+                "[!] Warning: more than 5 players in lobby detected. **CLOSE ACTIVE CHAT TABS**!\n"
             );
         }
 
@@ -182,7 +182,7 @@ fn main() {
             }
         }
 
-        std::thread::sleep(SLEEP_DURATION);
+        sleep();
     }
 }
 
@@ -190,6 +190,10 @@ fn main() {
 fn clear() {
     let term = console::Term::stdout();
     term.clear_screen().expect("Failed to clear console!");
+}
+
+fn sleep() {
+    std::thread::sleep(SLEEP_DURATION);
 }
 
 #[cfg(test)]
