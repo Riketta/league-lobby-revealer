@@ -6,7 +6,7 @@ pub fn encode(input: &str) -> String {
     let mut encoded = String::new();
 
     for b in input.as_bytes() {
-        if (*b).is_ascii_alphanumeric() || *b == b'-' || *b == b'.' || *b == b'_' || *b == b'~' {
+        if b.is_ascii_alphanumeric() || *b == b'-' || *b == b'.' || *b == b'_' || *b == b'~' {
             encoded.push(char::from_u32(u32::from(*b)).unwrap());
         } else if *b == b' ' {
             encoded.push('+');
